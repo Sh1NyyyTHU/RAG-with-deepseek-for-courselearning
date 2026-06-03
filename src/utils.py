@@ -1,6 +1,7 @@
 """Utility functions and helpers."""
 import hashlib
 import logging
+import re
 import sys
 from pathlib import Path
 from datetime import datetime, timezone
@@ -55,3 +56,23 @@ def now_iso() -> str:
 def format_citation(file_name: str, page_num: int) -> str:
     """Format a citation string."""
     return f"[来源：{file_name}，第 {page_num} 页]"
+
+
+def normalize_latex(text: str) -> str:
+    r"""Convert LaTeX delimiters to Streamlit-compatible format.
+
+    Streamlit's markdown renderer (KaTeX) supports $...$ for inline math
+    and $$...$$ for display math, but NOT \(...\) or \[...\] which
+    DeepSeek and other LLMs often output.
+
+    Transformation rules:
+        \[ expr \]  ->  $$expr$$   (display / block math)
+        \( expr \)  ->  $expr$     (inline math)
+    """
+    # Display math: \[ ... \]  →  $$ ... $$
+    text = re.sub(r'\\\[', '$$', text)
+    text = re.sub(r'\\\]', '$$', text)
+    # Inline math: \( ... \)  →  $ ... $
+    text = re.sub(r'\\\(', '$', text)
+    text = re.sub(r'\\\)', '$', text)
+    return text

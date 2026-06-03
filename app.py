@@ -12,7 +12,7 @@ from datetime import datetime
 import sys
 sys.path.insert(0, str(Path(__file__).parent))
 
-from src.utils import setup_logging
+from src.utils import setup_logging, normalize_latex
 from src.embedding_service import EmbeddingService
 from src.vector_store import VectorStore
 from src.retriever import Retriever
@@ -408,6 +408,7 @@ with tab2:
                 # Use st.write_stream for proper markdown streaming
                 def response_generator():
                     for chunk in stream:
+                        chunk = normalize_latex(chunk)
                         full_response[0] += chunk
                         yield chunk
 
